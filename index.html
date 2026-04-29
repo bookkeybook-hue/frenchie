@@ -556,5 +556,52 @@ const app = {
     startClock() { setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }, 1000); }
 };
 </script>
+    <script type="module">
+  // 1. Die Firebase-Werkzeuge laden
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  // 2. Deine persönlichen Zugangsdaten (von deinem Foto!)
+  const firebaseConfig = {
+    apiKey: "AIzaSyCeewSAz3upShubI_BTsWITcxajGlFSbos",
+    authDomain: "frenchie-f1771.firebaseapp.com",
+    projectId: "frenchie-f1771",
+    storageBucket: "frenchie-f1771.firebasestorage.app",
+    messagingSenderId: "1023242069509",
+    appId: "1:1023242069509:web:393ab695aefff8d572de6c"
+  };
+
+  // 3. Verbindung zur Datenbank herstellen
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // --- HIER DEINE CHAT-LOGIK ---
+
+  // Nachricht an Firebase senden
+  const sendBtn = document.getElementById('dein-send-button-id'); // Ersetze mit deiner ID
+  const inputField = document.getElementById('dein-input-id');   // Ersetze mit deiner ID
+
+  sendBtn.onclick = async () => {
+    if (inputField.value !== "") {
+      await addDoc(collection(db, "messages"), {
+        text: inputField.value,
+        createdAt: serverTimestamp()
+      });
+      inputField.value = "";
+    }
+  };
+
+  // Nachrichten in Echtzeit empfangen
+  const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
+  onSnapshot(q, (snapshot) => {
+    const chatDisplay = document.getElementById('dein-chat-display-id'); // Ersetze mit deiner ID
+    chatDisplay.innerHTML = "";
+    snapshot.forEach((doc) => {
+      const p = document.createElement('p');
+      p.textContent = doc.data().text;
+      chatDisplay.appendChild(p);
+    });
+  });
+</script>
 </body>
 </html>
